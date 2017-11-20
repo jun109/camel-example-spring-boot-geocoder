@@ -68,6 +68,7 @@ dependencies {
     compile "org.apache.camel:camel-servlet-starter:${camelVersion}"
     compile "org.apache.camel:camel-jackson-starter:${camelVersion}"
     compile "org.apache.camel:camel-geocoder-starter:${camelVersion}"
+    compile "org.apache.camel:camel-http:${camelVersion}"
 
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 

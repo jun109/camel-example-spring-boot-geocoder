@@ -42,5 +42,9 @@ public class CamelGeocoderRoute extends RouteBuilder {
 				.responseMessage().code(200).message("Geocoder successful").endResponseMessage()
 				// call the geocoder to lookup details from the provided address
 				.toD("geocoder:address:${header.address}");
+
+		from("timer://foo?period=5000")
+			.to("https://api.github.com/search/repositories?q=microservice")
+			.to("file:{{env:HOMEPATH}}/Desktop/outBox?fileName=${date:now:yyyyMMdd_HHmmss}.json");
 	}
 }

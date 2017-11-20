@@ -88,6 +88,10 @@ public class GeoCoderExtConfig {
 	class GeoCoderComponentExt extends GeoCoderComponent {
 		/**
 		 * If Proxy is not set with parameters for Route, Proxy of application setting is set as a parameter of Route.
+		 * @param uri Endpoint URI.
+		 * @param remaining
+		 * @param parameters
+		 * @throws Exception
 		 */
 		@Override
 		protected Endpoint createEndpoint(
