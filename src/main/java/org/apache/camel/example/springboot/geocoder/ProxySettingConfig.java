@@ -203,19 +203,46 @@ public class ProxySettingConfig {
 		boolean need = true;
 		try{
 			final String endPointHost = new URL(endPointUri).getHost();
-			final String[] nonProxyHostArray = getNonProxyHosts().split("\\|");
-			for(final String nonProxyHost :  nonProxyHostArray) {
-				if(Pattern.matches(nonProxyHost, endPointHost)) {
+			final Pattern nphPattern = getNonProxyPattern();
+			if(nphPattern != null) {
+				if(nphPattern.matcher(endPointHost).matches()) {
 					// LOG INFO
-					logger.info("EndPointUri match! nonProxyHost = {}, endPointUri = {}", nonProxyHost, endPointUri);
+					logger.info("EndPointUri match! nonProxyHost = {}, endPointUri = {}", nonProxyHosts, endPointUri);
 					need = false;
-					break;
 				}
 			}
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			// LOG WARN
+			logger.warn("Invalid EndPointUri {}", endPointUri, e);
 		}
 		return need;
+	}
+
+	private Pattern nonProxyHostsPattern;
+
+	/**
+	 * 以下から拝借。
+	 * @see https://stackoverflow.com/questions/17615300/valid-regex-for-http-nonproxyhosts
+	 * @param nonProxyHosts
+	 * @return
+	 */
+	private Pattern getNonProxyPattern() {
+		if(nonProxyHostsPattern != null) return nonProxyHostsPattern;
+		if (StringUtils.isBlank(nonProxyHosts)) return null;
+
+		// "*.fedora-commons.org" -> ".*?\.fedora-commons\.org"
+		String _nonProxyHosts = nonProxyHosts.replaceAll("\\.", "\\\\.").replaceAll("\\*", ".*?");
+
+		// a|b|*.c -> (a)|(b)|(.*?\.c)
+		_nonProxyHosts = "(" + _nonProxyHosts.replaceAll("\\|", ")|(") + ")";
+
+		try {
+			nonProxyHostsPattern = Pattern.compile(_nonProxyHosts);
+		} catch (Exception e) {
+			logger.error("Creating the nonProxyHosts pattern failed for http.nonProxyHosts=" + nonProxyHosts
+					+ " with the following exception: " + e);
+		}
+		return nonProxyHostsPattern;
 	}
 
 	/**
