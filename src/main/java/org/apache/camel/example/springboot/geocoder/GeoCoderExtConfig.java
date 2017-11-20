@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
  * @author w2327eng
  *
  */
-@Configuration
-@ConfigurationProperties(prefix = "camel.component.geocoder.ext")
+//@Configuration
+//@ConfigurationProperties(prefix = "camel.component.geocoder.ext")
 public class GeoCoderExtConfig {
 	/**
 	 * Logger
@@ -76,38 +76,32 @@ public class GeoCoderExtConfig {
 	 */
 	@Bean(name = "geocoder-component")
 	public GeoCoderComponent configureGeoCoderComponent(CamelContext camelContext) {
-		final GeoCoderComponent component = new GeoCoderComponentExt();
+		final GeoCoderComponent component = new GeoCoderComponent(){
+			/**
+			 * If Proxy is not set with parameters for Route, Proxy of application setting is set as a parameter of Route.
+			 * @param uri Endpoint URI.
+			 * @param remaining
+			 * @param parameters
+			 * @throws Exception
+			 */
+			@Override
+			protected Endpoint createEndpoint(
+					final String uri,
+					final String remaining,
+					final Map<String, Object> parameters) throws Exception {
+				final GeoCoderEndpoint endPoint = (GeoCoderEndpoint)super.createEndpoint(uri, remaining, parameters);
+				if(StringUtils.isBlank((String)parameters.get("proxyHost")) && StringUtils.isBlank((String)parameters.get("proxyPort"))) {
+					if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
+						endPoint.setProxyHost(proxyHost);
+						endPoint.setProxyPort(proxyPort);
+						// LOG INFO
+						logger.info("Setting proxy for GeoCoderEndpoint. host = {}, port = {}", proxyHost, proxyPort);
+					}
+				}
+				return endPoint;
+			}
+		};
 		component.setCamelContext(camelContext);
 		return component;
-	}
-
-	/**
-	 * GeoCoderComponentExt class.
-	 * @author w2327eng
-	 */
-	class GeoCoderComponentExt extends GeoCoderComponent {
-		/**
-		 * If Proxy is not set with parameters for Route, Proxy of application setting is set as a parameter of Route.
-		 * @param uri Endpoint URI.
-		 * @param remaining
-		 * @param parameters
-		 * @throws Exception
-		 */
-		@Override
-		protected Endpoint createEndpoint(
-				final String uri,
-				final String remaining,
-				final Map<String, Object> parameters) throws Exception {
-			final GeoCoderEndpoint endPoint = (GeoCoderEndpoint)super.createEndpoint(uri, remaining, parameters);
-			if(StringUtils.isBlank((String)parameters.get("proxyHost")) && StringUtils.isBlank((String)parameters.get("proxyPort"))) {
-				if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
-					endPoint.setProxyHost(proxyHost);
-					endPoint.setProxyPort(proxyPort);
-					// LOG INFO
-					logger.info("Setting proxy for GeoCoderEndpoint. host = {}, port = {}", proxyHost, proxyPort);
-				}
-			}
-			return endPoint;
-		}
 	}
 }

@@ -27,6 +27,13 @@ public class Application {
 	 * Main method to start the application.
 	 */
 	public static void main(String[] args) {
+		// FIXME これも無効
+		System.setProperty("http.proxyHost", "133.199.251.110");
+		System.setProperty("http.proxyPort", "8080");
+		System.setProperty("http.nonProxyHosts", "localhost|10.51.219.43");
+		System.setProperty("https.proxyHost", "133.199.251.110");
+		System.setProperty("https.proxyPort", "8080");
+
 		SpringApplication.run(Application.class, args);
 	}
 

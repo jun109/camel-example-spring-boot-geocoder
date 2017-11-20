@@ -18,6 +18,7 @@ package org.apache.camel.example.springboot.geocoder;
 
 import static org.apache.camel.model.rest.RestParamType.query;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
@@ -43,8 +44,17 @@ public class CamelGeocoderRoute extends RouteBuilder {
 				// call the geocoder to lookup details from the provided address
 				.toD("geocoder:address:${header.address}");
 
+		// with Proxy
 		from("timer://foo?period=5000")
 			.to("https://api.github.com/search/repositories?q=microservice")
-			.to("file:{{env:HOMEPATH}}/Desktop/outBox?fileName=${date:now:yyyyMMdd_HHmmss}.json");
+			.to("file:{{env:HOMEPATH}}/Desktop/outBox?fileName=github_${date:now:yyyyMMdd_HHmmss}.json");
+
+		// without Proxy
+		from("timer://boo?period=5000")
+			.process(exchange -> exchange.getIn().setBody("{\"woStatuses\": [\"Pending\"], \"project\": \"all\"}"))
+			.setHeader(Exchange.HTTP_METHOD, constant("POST"))
+			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+				.to("https://10.51.219.43:9080/webapi/wos")
+				.to("file:{{env:HOMEPATH}}/Desktop/outBox?fileName=wos_${date:now:yyyyMMdd_HHmmss}.json");
 	}
 }

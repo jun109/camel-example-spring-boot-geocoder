@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
  * @author w2327eng
  *
  */
-@Configuration
-@ConfigurationProperties(prefix = "camel.component.http")
+//@Configuration
+//@ConfigurationProperties(prefix = "camel.component.http")
 public class ContextConfig {
 	/**
 	 * Logger
@@ -75,7 +75,9 @@ public class ContextConfig {
 				// LOG INFO
 				logger.info("★beforeApplicationStart : GlobalOptions = {}", camelContext.getGlobalOptions());
 				if(StringUtils.isNotBlank(getProxyHost()) && StringUtils.isNotBlank(getProxyPort())) {
-					// 試しにここでセットしても、GeoCodeComponentはGeoCodeEndPointの設定に使っていない。
+					// FIXME CamelContextにセットすることで、HttpComponentに対しては有効であるが、
+					// ・nonProxyHostsが考慮されない。
+					// ・GeoCodeComponentはGeoCodeEndPointの設定に使っていない。
 					 camelContext.getGlobalOptions().put("http.proxyHost", getProxyHost());
 					 camelContext.getGlobalOptions().put("http.proxyPort", getProxyPort());
 				}

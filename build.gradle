@@ -68,7 +68,7 @@ dependencies {
     compile "org.apache.camel:camel-servlet-starter:${camelVersion}"
     compile "org.apache.camel:camel-jackson-starter:${camelVersion}"
     compile "org.apache.camel:camel-geocoder-starter:${camelVersion}"
-    compile "org.apache.camel:camel-http:${camelVersion}"
+    compile "org.apache.camel:camel-http-starter:${camelVersion}"
 
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 
@@ -80,7 +80,11 @@ dependencies {
 
 bootRun {
     jvmArgs = [
-        "-Dfile.encoding=UTF-8"
+        "-Dfile.encoding=UTF-8",
+        // FIXME 以下は無効
+        //"-Dhttp.proxyHost=133.199.251.110",
+        //"-Dhttp.proxyPort=8080",
+        //"-Dhttp.nonProxyHosts=localhost|10.51.219.43",
     ]
 }
 
