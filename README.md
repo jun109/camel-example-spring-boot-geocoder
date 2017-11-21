@@ -41,7 +41,7 @@ Apache CamelのSpring Bootインテグレーションサンプル（GeoCode）
 
 HTTP(S)は、Apache HttpClientを利用しているようで、CamelはこれをHttpComponentで生成するHttpEndPoint#createHttpClientで生成しているよう。
 ここでProxyの判断をして、セットすれば宜しいんじゃないかと。
-で、Apache CamelのSpring Boot Starterを使ったのですが、HttpComponentをセットアップする為のBean定義（"http-component", "https-component"）が用意されていたので、これを上書きする感じで独自Configを作成してみた。
+で、Apache CamelのSpring Boot Starterを使ったのですが、HttpComponentをセットアップする為のBean定義（"http-component", "https-component"）が用意されていたので、これを上書きする感じで独自Configを作成してみた。（元々ルートのパラメータでhttpClientConfigurerで指定できるもののデフォルトを上書いているイメージ）
 
 ※ちなみに、今回利用しているApache Camel、およびそのStarterは、全て2.19.4でのお話。また、camel-http使う前提。
 
@@ -81,13 +81,13 @@ public HttpComponent configureHttpComponent(
 @Override
 public HttpClient createHttpClient() {
   final HttpClient httpClient = super.createHttpClient();
-    if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
-      if(StringUtils.isBlank(httpClient.getHostConfiguration().getProxyHost())) {
-        if(needProxy(getEndpointUri())) {
-          // LOG INFO
-          logger.info("Setting proxy for EndPoint : {}", getEndpointUri());
-          httpClient.getHostConfiguration().setProxy(proxyHost, proxyPort);
-        }
+  if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
+    if(StringUtils.isBlank(httpClient.getHostConfiguration().getProxyHost())) {
+      if(needProxy(getEndpointUri())) {
+        // LOG INFO
+        logger.info("Setting proxy for EndPoint : {}", getEndpointUri());
+        httpClient.getHostConfiguration().setProxy(proxyHost, proxyPort);
+      }
     } else {
       // LOG INFO
       logger.info("EndPoint '{}' already set proxy. proxyHost = {}, proxyPort = {}"
@@ -111,3 +111,4 @@ GeoCoderComponentで、GeoCodeEndPointを生成しています。うーん、な
 こんな話、Apache HttpClient（今は、HttpComponent？）では日常ちゃめしごとであるはずで、実際HttpClientBuilderってのがあって、RoutePlannerっていうのでいけるようなのですが。。。camel-httpでは少なくとも使っていないように思います（ちゃんと読んでないだけ！？）。
 
 あと、やり終えたあたりで、「camel-http4あるってよ」とGoogleさんが教えてくれましたが、とりあえずガン無視して本日はここまで。
+結局、Apache Camel弄るはずが、関係無い話ばかりになっちゃったのは、スキル不足ゆえ。残念っ。
