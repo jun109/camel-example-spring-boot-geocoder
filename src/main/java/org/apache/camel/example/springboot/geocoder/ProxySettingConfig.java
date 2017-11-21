@@ -165,10 +165,7 @@ public class ProxySettingConfig {
 		final GeoCoderComponent component = new GeoCoderComponent(){
 			/**
 			 * If Proxy is not set with parameters for Route, Proxy of application setting is set as a parameter of Route.
-			 * @param uri Endpoint URI.
-			 * @param remaining
-			 * @param parameters
-			 * @throws Exception
+			 * @see org.apache.camel.component.geocoder.GeoCoderComponent#createEndpoint(java.lang.String, java.lang.String, java.util.Map)
 			 */
 			@Override
 			protected Endpoint createEndpoint(
@@ -176,8 +173,8 @@ public class ProxySettingConfig {
 					final String remaining,
 					final Map<String, Object> parameters) throws Exception {
 				final GeoCoderEndpoint endPoint = (GeoCoderEndpoint)super.createEndpoint(uri, remaining, parameters);
-				if(StringUtils.isBlank((String)parameters.get("proxyHost")) && StringUtils.isBlank((String)parameters.get("proxyPort"))) {
-					if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
+				if(StringUtils.isNotBlank(proxyHost) && proxyPort != null) {
+					if(!uri.contains("proxyHost") && !uri.contains("proxyPort")) {
 						// uriは、"/geocoder"なので、Geocoderから実際のホストを取得して判断
 						if(needProxy("https://" + Geocoder.getGeocoderHost())) {
 							// LOG INFO
@@ -185,6 +182,9 @@ public class ProxySettingConfig {
 							endPoint.setProxyHost(proxyHost);
 							endPoint.setProxyPort(proxyPort);
 						}
+					} else {
+						// LOG INFO
+						logger.info("GeoCoderEndpoint already set proxy. uri = {}", uri);
 					}
 				}
 				return endPoint;
@@ -230,13 +230,7 @@ public class ProxySettingConfig {
 		private final Logger logger = LoggerFactory.getLogger(getClass());
 
 		/**
-		 *
-		 * @param endPointURI
-		 * @param component
-		 * @param clientParams
-		 * @param httpConnectionManager
-		 * @param clientConfigurer
-		 * @throws URISyntaxException
+		 * @see org.apache.camel.component.http.HttpEndpoint#HttpEndpoint(String, HttpComponent, HttpClientParams, HttpConnectionManager, HttpClientConfigurer)
 		 */
 		public HttpEndPointExt(String endPointURI, HttpComponent component, HttpClientParams clientParams,
 				HttpConnectionManager httpConnectionManager, HttpClientConfigurer clientConfigurer)
@@ -259,6 +253,12 @@ public class ProxySettingConfig {
 						logger.info("Setting proxy for EndPoint : {}", getEndpointUri());
 						httpClient.getHostConfiguration().setProxy(proxyHost, proxyPort);
 					}
+				} else {
+					// LOG INFO
+					logger.info("EndPoint '{}' already set proxy. proxyHost = {}, proxyPort = {}"
+							, getEndpointUri()
+							, httpClient.getHostConfiguration().getProxyHost()
+							, httpClient.getHostConfiguration().getProxyPort());
 				}
 			}
 			return httpClient;
