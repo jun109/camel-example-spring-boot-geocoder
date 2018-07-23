@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Geocoder normally sets Proxy as a parameter to Route, but it is a setting class for replacing it with application settings.
+ * 試しに入力してみた。
  * @author w2327eng
  *
  */
